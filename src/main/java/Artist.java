@@ -64,9 +64,52 @@ public class Artist {
         return true;
     }
 
-    private boolean isValidArtistId(String artistId) {
-        String pattern = "^[5-9]\\d{2}[A-Z]{5}[!@#$%^&*()_+]$";
-        return artistId.matches(pattern);
+//    private boolean isValidArtistId(String artistId) {
+////        String pattern = "^[5-9]\\d{3}[A-Z]{5}[!@#$%^&*()_+]{2}$";
+////        String pattern = "^[5-9]{3}[A-Z]{5}[!@#$%^&*()_+={};:'\",<.>/?\\\\|~-]{2}$\n";
+//        String pattern = "^[5-9][5-9][5-9][A-Z][A-Z][A-Z][A-Z][A-Z][\\W][\\W]$";
+//
+//
+//        return artistId.matches(pattern);
+//    }
+private boolean isValidArtistId(String id) {
+    if (id.length() != 10) {
+        return false;
+    }
+
+    // Check the first three characters are numbers between 5 to 9
+    for (int i = 0; i < 3; i++) {
+        char digit = id.charAt(i);
+        if (digit < '5' || digit > '9') {
+            return false;
+        }
+    }
+
+    // Check characters 4th to 8th are upper case letters (A - Z)
+    for (int i = 3; i < 8; i++) {
+        char letter = id.charAt(i);
+        if (letter < 'A' || letter > 'Z') {
+            return false;
+        }
+    }
+
+    // Check the last two characters are special characters
+    char secondToLastChar = id.charAt(8);
+    char lastChar = id.charAt(9);
+    if (!isSpecialCharacter(secondToLastChar) || !isSpecialCharacter(lastChar)) {
+        return false;
+    }
+
+    // All conditions are satisfied
+    return true;
+}
+
+    private static boolean isSpecialCharacter(char c) {
+        // Define the set of special characters
+        String specialCharacters = "!@#$%^&*()_-+=<>?";
+
+        // Check if the character is in the set of special characters
+        return specialCharacters.contains(String.valueOf(c));
     }
 
     private boolean isValidBirthDate(String birthDate) {
@@ -88,20 +131,58 @@ public class Artist {
         return !occupations.isEmpty() && occupations.size() <= 5;
     }
 
-    private boolean isValidAwards(List<String> awards) {
-        if (awards.size() > 3) {
-            return false;
-        }
+//    private boolean isValidAwards(List<String> awards) {
+//        if (awards.size() > 3) {
+//            return false;
+//        }
+//
+////        String awardPattern = "^\\d{4}, [\\w\\s]{4,10}$";
+//        String awardPattern = "^[\\d]{4}, [\\w\\s]{4,10}$";
+//        for (String award : awards) {
+//            if (!award.matches(awardPattern)) {
+//                return false;
+//            }
+//        }
+//
+//        return true;
+//    }
 
-        String awardPattern = "^\\d{4}, [\\w\\s]{4,10}$";
-        for (String award : awards) {
-            if (!award.matches(awardPattern)) {
+    public static boolean isValidAwards(List<String> s) {
+        for (String str : s) {
+            // Split the string into components using comma and space
+            String[] components = str.split(", ");
+
+            // Check if there are exactly two components
+            if (components.length != 2) {
+                return false;
+            }
+
+            // Check if the first component is a 4-digit year
+            if (!isValidYear(components[0])) {
+                return false;
+            }
+
+            // Check if the second component (title) has 4 to 10 words
+            if (!isValidTitle(components[1])) {
                 return false;
             }
         }
 
+        // All strings in the list match the required format
         return true;
     }
+
+    // Helper method to check if a string is a valid 4-digit year
+    private static boolean isValidYear(String year) {
+        return year.matches("^\\d{4}$");
+    }
+
+    // Helper method to check if a string (title) has 4 to 10 words
+    private static boolean isValidTitle(String title) {
+        int wordCount = title.split("\\s+").length;
+        return wordCount >= 4 && wordCount <= 10;
+    }
+
 
     private boolean isValidMusicGenres(List<String> musicGenres) {
         if (musicGenres.size() < 2 || musicGenres.size() > 5) {
